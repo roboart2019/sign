@@ -42,7 +42,7 @@ export class SignerMenuView extends Component {
         const context = {};
         const views = this.availableViews();
         var domain = [
-            ["request_id.state", "=", "sent"],
+            ["request_id.state", "=", "0_sent"],
             ["partner_id", "child_of", [session.partner_id]],
             ["signed_on", "=", false],
         ];
