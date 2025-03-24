@@ -55,6 +55,6 @@ class ProjectTask(models.Model):
         old_partner_id = self.partner_id
         new_partner_id = vals.get("partner_id")
         res = super().write(vals)
-        if new_partner_id and new_partner_id != old_partner_id:
+        if new_partner_id and new_partner_id != old_partner_id.id:
             self._generate_sign_oca_request()
         return res
