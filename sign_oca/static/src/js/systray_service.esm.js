@@ -4,6 +4,7 @@ import {Dropdown} from "@web/core/dropdown/dropdown";
 import {DropdownItem} from "@web/core/dropdown/dropdown_item";
 import {registry} from "@web/core/registry";
 import {session} from "@web/session";
+import {_t} from "@web/core/l10n/translation";
 import {useDiscussSystray} from "@mail/utils/common/hooks";
 import {useService} from "@web/core/utils/hooks";
 const systrayRegistry = registry.category("systray");
@@ -36,7 +37,8 @@ export class SignerMenuView extends Component {
         ];
     }
     onClickFilterButton(group) {
-        document.body.click(); // Hack to close dropdown
+        // Hack to close dropdown
+        document.body.click();
         const context = {};
         const views = this.availableViews();
         var domain = [
@@ -48,7 +50,10 @@ export class SignerMenuView extends Component {
             {
                 context,
                 domain,
-                name: group.name,
+                name:
+                    group && group.name && group.name !== "Undefined"
+                        ? _t(group.name)
+                        : _t("Documents to be Signed"),
                 res_model: "sign.oca.request.signer",
                 search_view_id: [false],
                 type: "ir.actions.act_window",
