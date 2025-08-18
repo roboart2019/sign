@@ -4,6 +4,7 @@
 
 import base64
 
+from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import new_test_user
 
@@ -156,19 +157,15 @@ class TestAgreementSignOca(BaseCommon):
                 "data": dummy_pdf_content,
                 "name": "Signed Agreement A.pdf",
                 "record_ref": f"agreement,{self.agreement_a.id}",
-                "state": "sent",
+                "state": "0_sent",
                 "signer_ids": [
-                    (
-                        0,
-                        0,
+                    Command.create(
                         {
                             "role_id": customer_role.id,
                             "partner_id": self.subpartner_a.id,
                         },
                     ),
-                    (
-                        0,
-                        0,
+                    Command.create(
                         {
                             "role_id": company_signer_role.id,
                             "partner_id": self.company_signatory_person.id,
@@ -180,7 +177,7 @@ class TestAgreementSignOca(BaseCommon):
         # Simulate signing
         for signer in sign_request.signer_ids:
             signer.signed_on = "2023-01-01 12:00:00"
-        sign_request.state = "signed"
+        sign_request.state = "2_signed"
         self.assertNotEqual(self.agreement_a.stage_id, self.active_stage)
         sign_request.action_send_signed_request()
         self.assertEqual(self.agreement_a.stage_id, self.active_stage)
@@ -198,7 +195,7 @@ class TestAgreementSignOca(BaseCommon):
                 "data": base64.b64encode(b"PDF content"),
                 "name": "Test.pdf",
                 "record_ref": f"agreement,{self.agreement_a.id}",
-                "state": "sent",  # Not signed
+                "state": "0_sent",  # Not signed
             }
         )
         original_stage = self.agreement_a.stage_id
@@ -213,7 +210,7 @@ class TestAgreementSignOca(BaseCommon):
                 "data": base64.b64encode(b"PDF content"),
                 "name": "Test.pdf",
                 "record_ref": False,  # No agreement
-                "state": "signed",
+                "state": "2_signed",
             }
         )
         # This should not raise an error and not modify any agreement
@@ -228,7 +225,7 @@ class TestAgreementSignOca(BaseCommon):
                 "data": False,  # No data
                 "name": "Test.pdf",
                 "record_ref": f"agreement,{self.agreement_a.id}",
-                "state": "signed",
+                "state": "2_signed",
             }
         )
         original_stage = self.agreement_a.stage_id
@@ -254,19 +251,15 @@ class TestAgreementSignOca(BaseCommon):
                 "data": dummy_pdf_content,
                 "name": "Signed Agreement A.pdf",
                 "record_ref": f"agreement,{self.agreement_a.id}",
-                "state": "sent",
+                "state": "0_sent",
                 "signer_ids": [
-                    (
-                        0,
-                        0,
+                    Command.create(
                         {
                             "role_id": customer_role.id,
                             "partner_id": self.subpartner_a.id,
                         },
                     ),
-                    (
-                        0,
-                        0,
+                    Command.create(
                         {
                             "role_id": company_signer_role.id,
                             "partner_id": company_signer_no_user.id,
@@ -278,7 +271,7 @@ class TestAgreementSignOca(BaseCommon):
         # Simulate signing
         for signer in sign_request.signer_ids:
             signer.signed_on = "2023-01-01 12:00:00"
-        sign_request.state = "signed"
+        sign_request.state = "2_signed"
         sign_request.action_send_signed_request()
         self.assertEqual(self.agreement_a.stage_id, self.active_stage)
         self.assertEqual(self.agreement_a.signed_contract, dummy_pdf_content)
@@ -297,11 +290,9 @@ class TestAgreementSignOca(BaseCommon):
                 "data": dummy_pdf_content,
                 "name": "Signed Agreement B.pdf",
                 "record_ref": f"agreement,{self.agreement_b.id}",
-                "state": "sent",
+                "state": "0_sent",
                 "signer_ids": [
-                    (
-                        0,
-                        0,
+                    Command.create(
                         {
                             "role_id": customer_role.id,
                             "partner_id": self.subpartner_b.id,
@@ -313,7 +304,7 @@ class TestAgreementSignOca(BaseCommon):
         # Simulate signing
         for signer in sign_request.signer_ids:
             signer.signed_on = "2023-01-01 12:00:00"
-        sign_request.state = "signed"
+        sign_request.state = "2_signed"
         sign_request.action_send_signed_request()
         self.assertEqual(self.agreement_b.stage_id, self.active_stage)
         self.assertEqual(self.agreement_b.signed_contract, dummy_pdf_content)

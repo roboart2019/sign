@@ -3,7 +3,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 import base64
 
-from odoo import _, api, fields, models
+from odoo import Command, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -43,13 +43,15 @@ class Agreement(models.Model):
         signers_list = []
         if not self.partner_contact_id:
             raise ValidationError(
-                _("The agreement must have an assigned contact (counterparty).")
+                self.env._(
+                    "The agreement must have an assigned contact (counterparty)."
+                )
             )
         if not self.partner_contact_id.email:
             raise ValidationError(
-                _(
-                    """The agreement's counterparty contact
-                    does not have an email configured."""
+                self.env._(
+                    "The agreement's counterparty contact "
+                    "does not have an email configured."
                 )
             )
         report = self.env.ref("agreement_legal.partner_agreement_contract_document")
@@ -61,9 +63,9 @@ class Agreement(models.Model):
         )
         if not customer_role:
             raise ValidationError(
-                _(
-                    """The 'Customer' role for the signature
-                    was not found. Please update 'agreement' module."""
+                self.env._(
+                    "The 'Customer' role for the signature "
+                    "was not found. Please update 'agreement' module."
                 )
             )
         company_signer_role = self.env.ref(
@@ -71,16 +73,14 @@ class Agreement(models.Model):
         )
         if not company_signer_role:
             raise ValidationError(
-                _(
-                    """The 'Agreement Company Signatory Person' role for the signature
-                    was not found. Please update 'agreement_sign_oca' module."""
+                self.env._(
+                    "The 'Agreement Company Signatory Person' role for the signature "
+                    "was not found. Please update 'agreement_sign_oca' module."
                 )
             )
         if self.partner_contact_id:
             signers_list.append(
-                (
-                    0,
-                    0,
+                Command.create(
                     {
                         "role_id": customer_role.id,
                         "partner_id": self.partner_contact_id.id,
@@ -89,28 +89,26 @@ class Agreement(models.Model):
             )
         else:
             raise ValidationError(
-                _(
-                    """Please set a Primary Contact in order to set the
-                    signatory person of the counterpart in this document"""
+                self.env._(
+                    "Please set a Primary Contact in order to set the "
+                    "signatory person of the counterpart in this document"
                 )
             )
 
         if not self.company_contact_id:
             raise ValidationError(
-                _(
-                    """Please set a Company Primary Contact in order to set
-                    the signatory person of the company in this document"""
+                self.env._(
+                    "Please set a Company Primary Contact in order to set "
+                    "the signatory person of the company in this document"
                 )
             )
         if not self.company_contact_id.user_ids:
             raise ValidationError(
-                _("Please create a user for ther company signatory person")
+                self.env._("Please create a user for their company signatory person")
             )
         else:
             signers_list.append(
-                (
-                    0,
-                    0,
+                Command.create(
                     {
                         "role_id": company_signer_role.id,
                         "partner_id": self.company_contact_id.id,
