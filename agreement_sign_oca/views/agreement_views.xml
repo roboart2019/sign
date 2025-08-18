@@ -19,7 +19,7 @@
                 />
             </xpath>
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                 <button
+                <button
                     class="oe_stat_button"
                     type="object"
                     name="action_view_sign_requests"
