@@ -33,7 +33,7 @@ class SignOcaRequest(models.Model):
         )
 
         for request in self:
-            if request.state == "signed" and request.agreement_id and request.data:
+            if request.state == "2_signed" and request.agreement_id and request.data:
                 signed_stage_id = (
                     request.env.company.agreement_sign_oca_signed_stage_id.id
                 )
