@@ -38,7 +38,7 @@
                 <field
                     name="project_id"
                     readonly="1"
-                    attrs="{'invisible': [('project_id','=',False)]}"
+                    invisible="project_id == False"
                     groups="project.group_project_user"
                 />
             </field>
