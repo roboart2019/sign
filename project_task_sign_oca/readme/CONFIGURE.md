@@ -10,5 +10,5 @@
 
 3.  (Optional) Go to Project > Configuration > Settings.
 
-- In the Task Sign section, define a template to enable automatic task sign requests.
+- In the Sign Oca section, define a template to enable automatic task sign requests.
 - Use the template previously created.

@@ -5,7 +5,7 @@
     "name": "Project Task Sign Oca",
     "summary": """
         Project Task Sign Oca""",
-    "version": "16.0.1.0.1",
+    "version": "17.0.1.0.0",
     "license": "AGPL-3",
     "author": "Escodoo, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sign",
@@ -19,4 +19,6 @@
         "demo/sign_oca_role.xml",
         "demo/sign_oca_template.xml",
     ],
+    "installable": True,
+    "maintainers": ["WesleyOliveira98"],
 }

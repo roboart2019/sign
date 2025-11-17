@@ -52,7 +52,7 @@ Configuration
 
 3. (Optional) Go to Project > Configuration > Settings.
 
--  In the Task Sign section, define a template to enable automatic task
+-  In the Sign Oca section, define a template to enable automatic task
    sign requests.
 -  Use the template previously created.
 
@@ -123,6 +123,14 @@ This module is maintained by the OCA.
 OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
+
+.. |maintainer-WesleyOliveira98| image:: https://github.com/WesleyOliveira98.png?size=40px
+    :target: https://github.com/WesleyOliveira98
+    :alt: WesleyOliveira98
+
+Current `maintainer <https://odoo-community.org/page/maintainer-role>`__:
+
+|maintainer-WesleyOliveira98| 
 
 This module is part of the `OCA/sign <https://github.com/OCA/sign/tree/17.0/project_task_sign_oca>`_ project on GitHub.
 
