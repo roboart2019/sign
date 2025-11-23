@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0\n"
+"Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,11 +12,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
-
-#. module: project_task_sign_oca
-#: model_terms:ir.ui.view,arch_db:project_task_sign_oca.res_config_settings_view_form
-msgid "<span class=\"o_form_label\">Task Sign</span>"
-msgstr ""
 
 #. module: project_task_sign_oca
 #: model:ir.model,name:project_task_sign_oca.model_res_company
@@ -47,6 +42,11 @@ msgid "Project Task Sign Oca Template"
 msgstr ""
 
 #. module: project_task_sign_oca
+#: model_terms:ir.ui.view,arch_db:project_task_sign_oca.res_config_settings_view_form
+msgid "Sign Oca"
+msgstr ""
+
+#. module: project_task_sign_oca
 #: model:ir.model,name:project_task_sign_oca.model_sign_oca_request
 msgid "Sign Request"
 msgstr ""
@@ -55,11 +55,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:project_task_sign_oca.field_project_task__sign_request_ids
 #: model_terms:ir.ui.view,arch_db:project_task_sign_oca.view_task_form2
 msgid "Sign Requests"
-msgstr ""
-
-#. module: project_task_sign_oca
-#: model_terms:ir.ui.view,arch_db:project_task_sign_oca.res_config_settings_view_form
-msgid "Sign Template"
 msgstr ""
 
 #. module: project_task_sign_oca
