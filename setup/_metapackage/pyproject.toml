@@ -1,9 +1,10 @@
 [project]
 name = "odoo-addons-oca-sign"
-version = "17.0.20250816.0"
+version = "17.0.20251123.0"
 dependencies = [
     "odoo-addon-agreement_sign_oca>=17.0dev,<17.1dev",
     "odoo-addon-maintenance_sign_oca>=17.0dev,<17.1dev",
+    "odoo-addon-project_task_sign_oca>=17.0dev,<17.1dev",
     "odoo-addon-sign_oca>=17.0dev,<17.1dev",
 ]
 classifiers=[
