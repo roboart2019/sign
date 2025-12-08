@@ -2,7 +2,6 @@
 <!-- Copyright 2024 - TODAY, Wesley Oliveira <wesley.oliveira@escodoo.com.br>
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
-
     <record id="sign_oca_request_search_view" model="ir.ui.view">
         <field name="name">sign.oca.request.search (in project_task_sign_oca)</field>
         <field name="model">sign.oca.request</field>
@@ -59,5 +58,4 @@
             </field>
         </field>
     </record>
-
 </odoo>
