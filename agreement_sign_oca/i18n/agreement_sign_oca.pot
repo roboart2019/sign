@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 17.0\n"
+"Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -44,26 +44,23 @@ msgstr ""
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
-msgid "Please create a user for ther company signatory person"
+msgid "Please create a user for their company signatory person"
 msgstr ""
 
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
 msgid ""
-"Please set a Company Primary Contact in order to set\n"
-"                    the signatory person of the company in this document"
+"Please set a Company Primary Contact in order to set the signatory person of"
+" the company in this document"
 msgstr ""
 
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
 msgid ""
-"Please set a Primary Contact in order to set the\n"
-"                    signatory person of the counterpart in this document"
+"Please set a Primary Contact in order to set the signatory person of the "
+"counterpart in this document"
 msgstr ""
 
 #. module: agreement_sign_oca
@@ -110,33 +107,28 @@ msgstr ""
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
 msgid ""
-"The 'Agreement Company Signatory Person' role for the signature\n"
-"                    was not found. Please update 'agreement_sign_oca' module."
+"The 'Agreement Company Signatory Person' role for the signature was not "
+"found. Please update 'agreement_sign_oca' module."
 msgstr ""
 
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
 msgid ""
-"The 'Customer' role for the signature\n"
-"                    was not found. Please update 'agreement' module."
+"The 'Customer' role for the signature was not found. Please update "
+"'agreement' module."
 msgstr ""
 
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
 msgid "The agreement must have an assigned contact (counterparty)."
 msgstr ""
 
 #. module: agreement_sign_oca
 #. odoo-python
 #: code:addons/agreement_sign_oca/models/agreement.py:0
-#, python-format
 msgid ""
-"The agreement's counterparty contact\n"
-"                    does not have an email configured."
+"The agreement's counterparty contact does not have an email configured."
 msgstr ""
