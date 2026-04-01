@@ -1,7 +1,8 @@
 [project]
 name = "odoo-addons-oca-sign"
-version = "18.0.20251221.0"
+version = "18.0.20260401.0"
 dependencies = [
+    "odoo-addon-agreement_sign_oca==18.0.*",
     "odoo-addon-project_task_sign_oca==18.0.*",
     "odoo-addon-sign_oca==18.0.*",
 ]
