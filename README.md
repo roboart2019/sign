@@ -22,8 +22,8 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [agreement_sign_oca](agreement_sign_oca/) | 18.0.1.0.0 | <a href='https://github.com/miquelalzanillas'><img src='https://github.com/miquelalzanillas.png' width='32' height='32' style='border-radius:50%;' alt='miquelalzanillas'/></a> | Agreement Sign Oca
-[project_task_sign_oca](project_task_sign_oca/) | 18.0.1.0.0 | <a href='https://github.com/WesleyOliveira98'><img src='https://github.com/WesleyOliveira98.png' width='32' height='32' style='border-radius:50%;' alt='WesleyOliveira98'/></a> | Project Task Sign Oca
-[sign_oca](sign_oca/) | 18.0.1.4.2 | <a href='https://github.com/etobella'><img src='https://github.com/etobella.png' width='32' height='32' style='border-radius:50%;' alt='etobella'/></a> | Allow to sign documents inside Odoo CE
+[project_task_sign_oca](project_task_sign_oca/) | 18.0.1.0.1 | <a href='https://github.com/WesleyOliveira98'><img src='https://github.com/WesleyOliveira98.png' width='32' height='32' style='border-radius:50%;' alt='WesleyOliveira98'/></a> | Project Task Sign Oca
+[sign_oca](sign_oca/) | 18.0.1.4.3 | <a href='https://github.com/etobella'><img src='https://github.com/etobella.png' width='32' height='32' style='border-radius:50%;' alt='etobella'/></a> | Allow to sign documents inside Odoo CE
 
 [//]: # (end addons)
 
