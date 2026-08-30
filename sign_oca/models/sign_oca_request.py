@@ -197,7 +197,11 @@ class SignOcaRequest(models.Model):
         data = self.signatory_data or {}
         item = data[str(item_id)]
         item.update(vals)
-        self._apply_field_name(item)
+        if "field_name" in vals:
+            # Only (re)compute the pre-filled value when the database field
+            # mapping itself is being set/changed, not on every unrelated
+            # update (e.g. moving/resizing the item on the page).
+            self._apply_field_name(item)
         self.signatory_data = data
         self._set_action_log("edit_field")
 
@@ -230,14 +234,15 @@ class SignOcaRequest(models.Model):
         return signatory_data[item_id]
 
     def _apply_field_name(self, item):
-        """When an item is bound to a database field, its value comes from
-        the record linked to the request instead of from a signer, so we
-        (re)compute it here and make sure it is not attributed to any
-        signer role."""
+        """When an item is bound to a database field, pre-fill its value
+        from the record linked to the request. Unlike a plain default, this
+        does not require anyone to focus the field first: the value is
+        already there. "Filled by" and "Required" are left untouched, so
+        whoever is assigned to that field can still review and correct the
+        pre-filled value before signing; leaving "Filled by" empty keeps
+        the old behavior of a value nobody can edit."""
         self.ensure_one()
         if item.get("field_name"):
-            item["role_id"] = False
-            item["required"] = False
             item["value"] = self.env["sign.oca.field"]._get_field_display_value(
                 self.record_ref, item["field_name"]
             )

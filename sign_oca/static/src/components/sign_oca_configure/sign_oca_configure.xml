@@ -42,7 +42,7 @@
                 class="fa fa-database"
                 role="img"
                 aria-label="Database field"
-                t-att-title="'Auto-filled from: ' + field_name"
+                t-att-title="'Pre-filled from: ' + field_name"
             />
             <span class="o_sign_placeholder" t-out="name" />
         </div>

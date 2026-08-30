@@ -60,18 +60,23 @@
 - customers who are using portal can sign their documents from portal 
   directly in addition to being able to sign them from emails.
 
-## Auto-fill fields from the database
+## Pre-fill fields from the database
 
 - When configuring a template or a request, click on a field to open its
   edition dialog.
-- In the "Database field" selector, pick a field of the record linked to
-  the document (or one level through a relation, e.g. a partner's VAT).
-  This selector is only available once the template (or request) is
-  linked to a model/record.
-- Once a database field is selected, "Filled by" and "Required" are
-  disabled: the field is no longer filled in by a signer, it is
-  automatically filled with the value of that field on the record used
-  to generate the request (e.g. the contract number, the customer VAT,
-  the total amount...).
-- The value is written into the final PDF as soon as the first signer
-  signs the document.
+- In the "Pre-fill from database" selector, pick a field of the record
+  linked to the document (or one level through a relation, e.g. a
+  partner's VAT). This selector is only available once the template (or
+  request) is linked to a model/record.
+- Once picked, the field starts out already filled with that value (e.g.
+  the customer VAT, the contract amount...), computed from the record
+  used to generate the request.
+- "Filled by" and "Required" still work as usual on top of that: if you
+  set "Filled by" to a role (e.g. Customer), that signer sees the
+  pre-filled value in their normal editable field and can correct it
+  before signing if it is wrong. Leave "Filled by" empty instead if you
+  want the pre-filled value to be fixed, so nobody can change it.
+- The final value (whether left as pre-filled or corrected by the
+  signer) is written into the PDF once the relevant signer signs the
+  document (or, for a field with no "Filled by" role, as soon as the
+  first signer signs).

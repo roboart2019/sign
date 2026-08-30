@@ -15,12 +15,34 @@
                         </t>
                     </select>
                 </div>
+                <label for="field_name">Pre-fill from database</label>
+                <div class="o_sign_oca_field_edition_value">
+                    <select name="field_name">
+                        <option value="">-- No pre-fill --</option>
+                        <t
+                            t-foreach="props.info.record_fields"
+                            t-as="record_field"
+                            t-key="record_field.name"
+                        >
+                            <option
+                                t-att-value="record_field.name"
+                                t-out="record_field.string"
+                                t-att-selected="props.item.field_name === record_field.name ? 'selected': None"
+                            />
+                        </t>
+                    </select>
+                    <div class="text-muted small">
+                        When set, this field starts out already filled with
+                        that field's value from the record linked to the
+                        document. Whoever it is "Filled by" below can still
+                        review and correct it before signing. Leave "Filled
+                        by" empty to make the value fixed instead, so no one
+                        can change it.
+                    </div>
+                </div>
                 <label for="role_id">Filled by</label>
                 <div class="o_sign_oca_field_edition_value">
-                    <select
-                        name="role_id"
-                        t-att-disabled="props.item.field_name ? 'disabled': undefined"
-                    >
+                    <select name="role_id">
                         <t t-foreach="props.info.roles" t-as="role" t-key="role.id">
                             <option
                                 t-att-value="role.id"
@@ -36,7 +58,6 @@
                         name="required"
                         type="checkbox"
                         t-att-checked="props.item.required? 'checked': undefined"
-                        t-att-disabled="props.item.field_name ? 'disabled': undefined"
                     />
                 </div>
                 <label for="placeholder">Placeholder</label>
@@ -46,28 +67,6 @@
                         name="placeholder"
                         t-att-value="props.item.placeholder || ''"
                     />
-                </div>
-                <label for="field_name">Database field</label>
-                <div class="o_sign_oca_field_edition_value">
-                    <select name="field_name" t-on-change="_onFieldNameChange">
-                        <option value="">-- Filled by signer --</option>
-                        <t
-                            t-foreach="props.info.record_fields"
-                            t-as="record_field"
-                            t-key="record_field.name"
-                        >
-                            <option
-                                t-att-value="record_field.name"
-                                t-out="record_field.string"
-                                t-att-selected="props.item.field_name === record_field.name ? 'selected': None"
-                            />
-                        </t>
-                    </select>
-                    <div class="text-muted small">
-                        When set, this field is automatically filled with
-                        that field's value from the record linked to the
-                        document instead of being filled in by a signer.
-                    </div>
                 </div>
             </div>
             <t t-set-slot="footer">

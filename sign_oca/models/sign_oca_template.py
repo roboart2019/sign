@@ -239,13 +239,10 @@ class SignOcaTemplateItem(models.Model):
             }
         )
         if self.field_name:
-            vals.update(
-                {
-                    "role_id": False,
-                    "required": False,
-                    "value": self.env["sign.oca.field"]._get_field_display_value(
-                        record, self.field_name
-                    ),
-                }
+            # Pre-fill the value from the record; "role_id"/"required" are
+            # left as configured, so the assigned signer can still review
+            # and correct it (an empty role keeps it uneditable, as before).
+            vals["value"] = self.env["sign.oca.field"]._get_field_display_value(
+                record, self.field_name
             )
         return vals
