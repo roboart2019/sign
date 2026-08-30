@@ -66,9 +66,9 @@
   edition dialog.
 - In the "Pre-fill from database" selector, pick a field of the record
   linked to the document, or one level through a relation (e.g. a
-  partner's VAT): related fields are grouped together under their
-  relation's name (e.g. all of "Company"'s own fields, like City or
-  State, are grouped under a "Company" heading in the list). This
+  partner's VAT): a relation's own fields (e.g. "Company > City",
+  "Company > State"...) always appear right after it in the list, so
+  fields that belong together stay together. This
   selector is only available once the template (or request) is linked
   to a model/record.
 - Once picked, the field starts out already filled with that value (e.g.

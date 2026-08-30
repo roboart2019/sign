@@ -27,52 +27,50 @@ class SignOcaField(models.Model):
 
     @api.model
     def _get_model_field_choices(self, model_name):
-        """Return the fields that can be picked as a "database field" to
-        pre-fill an item, for the given model, as
-        ``{"direct": [...], "groups": [...]}``.
+        """Return the list of fields that can be picked as a "database
+        field" to pre-fill an item, for the given model.
 
-        ``direct`` are the plain fields of ``model_name``. ``groups`` holds
-        one entry per many2one field, each with the (one level deep) fields
-        of the related model, e.g. all the fields reachable through
-        ``partner_id`` (``partner_id.vat``, ``partner_id.city``...) grouped
-        together under a "Customer" label — instead of being scattered
-        across a single alphabetized list, where fields that belong
-        together (e.g. a related company's city and state) could end up
-        far apart from each other.
+        Direct fields of ``model_name`` are included, as well as one level
+        of relation through many2one fields (e.g. ``partner_id.vat``), so
+        that common use cases (partner data, related documents...) do not
+        require chaining several dots by hand.
+
+        The list is sorted alphabetically by direct field, but each
+        many2one field is immediately followed by its own (alphabetically
+        sorted) sub-fields, so e.g. "Company", "Company > City" and
+        "Company > State" always stay next to each other, instead of
+        "Company > State" ending up scattered away under "S" while
+        "Company > City" sits under "C".
         """
         if not model_name or model_name not in self.env:
-            return {"direct": [], "groups": []}
+            return []
         model = self.env[model_name]
-        direct = []
-        groups = []
-        for fname, field in model._fields.items():
-            if fname == "id" or field.type in _EXCLUDED_FIELD_TYPES:
-                continue
-            direct.append({"name": fname, "string": field.string or fname})
+        direct_fields = [
+            (fname, field)
+            for fname, field in model._fields.items()
+            if fname != "id" and field.type not in _EXCLUDED_FIELD_TYPES
+        ]
+        direct_fields.sort(key=lambda item: item[1].string or item[0])
+
+        choices = []
+        for fname, field in direct_fields:
+            choices.append({"name": fname, "string": field.string or fname})
             if field.type == "many2one" and field.comodel_name in self.env:
                 related_model = self.env[field.comodel_name]
-                sub_choices = []
-                for sub_fname, sub_field in related_model._fields.items():
-                    if sub_fname == "id" or sub_field.type in _EXCLUDED_FIELD_TYPES:
-                        continue
-                    sub_choices.append(
+                sub_fields = [
+                    (sub_fname, sub_field)
+                    for sub_fname, sub_field in related_model._fields.items()
+                    if sub_fname != "id" and sub_field.type not in _EXCLUDED_FIELD_TYPES
+                ]
+                sub_fields.sort(key=lambda item: item[1].string or item[0])
+                for sub_fname, sub_field in sub_fields:
+                    choices.append(
                         {
                             "name": f"{fname}.{sub_fname}",
-                            "string": sub_field.string or sub_fname,
+                            "string": f"{field.string} > {sub_field.string}",
                         }
                     )
-                if sub_choices:
-                    groups.append(
-                        {
-                            "label": field.string or fname,
-                            "fields": sorted(
-                                sub_choices, key=lambda item: item["string"]
-                            ),
-                        }
-                    )
-        direct.sort(key=lambda item: item["string"])
-        groups.sort(key=lambda group: group["label"])
-        return {"direct": direct, "groups": groups}
+        return choices
 
     @api.model
     def _get_field_display_value(self, record, field_path):
