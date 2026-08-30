@@ -59,3 +59,19 @@
 ## Sign from portal
 - customers who are using portal can sign their documents from portal 
   directly in addition to being able to sign them from emails.
+
+## Auto-fill fields from the database
+
+- When configuring a template or a request, click on a field to open its
+  edition dialog.
+- In the "Database field" selector, pick a field of the record linked to
+  the document (or one level through a relation, e.g. a partner's VAT).
+  This selector is only available once the template (or request) is
+  linked to a model/record.
+- Once a database field is selected, "Filled by" and "Required" are
+  disabled: the field is no longer filled in by a signer, it is
+  automatically filled with the value of that field on the record used
+  to generate the request (e.g. the contract number, the customer VAT,
+  the total amount...).
+- The value is written into the final PDF as soon as the first signer
+  signs the document.

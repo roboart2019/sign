@@ -26,7 +26,7 @@
     </t>
     <t t-name="sign_oca.sign_iframe_field_configure">
         <div
-            t-attf-class="o_sign_oca_field #{required? 'sign_oca_field_required': ''}"
+            t-attf-class="o_sign_oca_field #{required? 'sign_oca_field_required': ''} #{field_name ? 'o_sign_oca_field_auto': ''}"
             t-attf-data-field="id"
             t-attf-style="position:absolute;top:#{position_y}%; left: #{position_x}%; width: #{width}%;height: #{height}%"
         >
@@ -37,6 +37,13 @@
                 title="Signature configuration"
             />
             <div class="o_sign_oca_resize fa fa-arrows-alt" style="z-index: 90;" />
+            <span
+                t-if="field_name"
+                class="fa fa-database"
+                role="img"
+                aria-label="Database field"
+                t-att-title="'Auto-filled from: ' + field_name"
+            />
             <span class="o_sign_placeholder" t-out="name" />
         </div>
     </t>

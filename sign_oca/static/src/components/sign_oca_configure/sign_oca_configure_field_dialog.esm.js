@@ -18,13 +18,22 @@ export class SignOcaConfigureFieldDialog extends Component {
         this.props.close();
     }
 
+    _onFieldNameChange(ev) {
+        const $el = $(this.modalRef.el);
+        const hasFieldName = Boolean(ev.target.value);
+        $el.find('select[name="role_id"]').prop("disabled", hasFieldName);
+        $el.find("input[name='required']").prop("disabled", hasFieldName);
+    }
+
     async _confirm() {
         const $el = $(this.modalRef.el);
+        const fieldName = $el.find('select[name="field_name"]').val() || false;
         await this.props.confirm(
             parseInt($el.find('select[name="field_id"]').val(), 10),
-            parseInt($el.find('select[name="role_id"]').val(), 10),
-            $el.find("input[name='required']").prop("checked"),
-            $el.find("input[name='placeholder']").val()
+            fieldName ? false : parseInt($el.find('select[name="role_id"]').val(), 10),
+            fieldName ? false : $el.find("input[name='required']").prop("checked"),
+            $el.find("input[name='placeholder']").val(),
+            fieldName
         );
         this.props.close();
     }

@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SignOcaTemplate(models.Model):
@@ -67,6 +68,9 @@ class SignOcaTemplate(models.Model):
                 {"id": field.id, "name": field.name}
                 for field in self.env["sign.oca.field"].search([])
             ],
+            "record_fields": self.env["sign.oca.field"]._get_model_field_choices(
+                self.model
+            ),
         }
 
     def delete_item(self, item_id):
@@ -86,7 +90,7 @@ class SignOcaTemplate(models.Model):
         item_vals["template_id"] = self.id
         return self.env["sign.oca.template.item"].create(item_vals).get_info()
 
-    def _get_signatory_data(self):
+    def _get_signatory_data(self, record=None):
         items = sorted(
             self.item_ids,
             key=lambda item: (
@@ -99,7 +103,7 @@ class SignOcaTemplate(models.Model):
         signatory_data = {}
         item_id = 1
         for item in items:
-            item_data = item._get_full_info()
+            item_data = item._get_full_info(record)
             item_data["id"] = item_id
             item_data["tabindex"] = tabindex
             tabindex += 1
@@ -115,7 +119,7 @@ class SignOcaTemplate(models.Model):
             "name": self.name,
             "template_id": self.id,
             "record_ref": f"{record._name},{record.id}",
-            "signatory_data": self._get_signatory_data(),
+            "signatory_data": self._get_signatory_data(record),
             "data": self.data,
             "signer_ids": [
                 (
@@ -150,10 +154,61 @@ class SignOcaTemplateItem(models.Model):
     width = fields.Float()
     height = fields.Float()
     placeholder = fields.Char()
+    field_name = fields.Char(
+        string="Database Field",
+        help="Technical name of a field on the record linked to the "
+        "document (optionally dotted to follow a many2one, e.g. "
+        "'partner_id.vat'). When set, this item is automatically filled "
+        "with that field's value instead of being filled in by a signer.",
+    )
 
     @api.model
     def _get_default_role(self):
         return self.env.ref("sign_oca.sign_role_customer")
+
+    @api.constrains("field_name")
+    def _check_field_name(self):
+        for item in self.filtered("field_name"):
+            model = item.template_id.model_id
+            if not model:
+                raise ValidationError(
+                    self.env._(
+                        "You need to set a model on the template before "
+                        "using database fields."
+                    )
+                )
+            current_model = model.model
+            chain = item.field_name.split(".")
+            for index, fname in enumerate(chain):
+                if current_model not in self.env:
+                    raise ValidationError(
+                        self.env._(
+                            "Model %(model)s is not available", model=current_model
+                        )
+                    )
+                current_model_obj = self.env[current_model]
+                if fname not in current_model_obj._fields:
+                    raise ValidationError(
+                        self.env._(
+                            "Field %(field)s does not exist in model "
+                            "%(model)s",
+                            field=fname,
+                            model=current_model,
+                        )
+                    )
+                field = current_model_obj._fields[fname]
+                if index < len(chain) - 1:
+                    if field.type != "many2one":
+                        raise ValidationError(
+                            self.env._(
+                                "Field %(field)s in model %(model)s is not "
+                                "a relation, so it cannot be followed by "
+                                "more fields",
+                                field=fname,
+                                model=current_model,
+                            )
+                        )
+                    current_model = field.comodel_name
 
     def get_info(self):
         self.ensure_one()
@@ -169,9 +224,10 @@ class SignOcaTemplateItem(models.Model):
             "height": self.height,
             "placeholder": self.placeholder,
             "required": self.required,
+            "field_name": self.field_name,
         }
 
-    def _get_full_info(self):
+    def _get_full_info(self, record=None):
         """Method used in the wizards in the requests that are created."""
         self.ensure_one()
         vals = self.get_info()
@@ -182,4 +238,14 @@ class SignOcaTemplateItem(models.Model):
                 "default_value": self.field_id.default_value,
             }
         )
+        if self.field_name:
+            vals.update(
+                {
+                    "role_id": False,
+                    "required": False,
+                    "value": self.env["sign.oca.field"]._get_field_display_value(
+                        record, self.field_name
+                    ),
+                }
+            )
         return vals

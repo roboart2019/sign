@@ -154,6 +154,9 @@ class SignOcaRequest(models.Model):
                 {"id": field.id, "name": field.name}
                 for field in self.env["sign.oca.field"].search([])
             ],
+            "record_fields": self.env["sign.oca.field"]._get_model_field_choices(
+                self.record_ref._name if self.record_ref else False
+            ),
         }
 
     def _ensure_draft(self):
@@ -192,7 +195,9 @@ class SignOcaRequest(models.Model):
     def set_item_data(self, item_id, vals):
         self._ensure_draft()
         data = self.signatory_data or {}
-        data[str(item_id)].update(vals)
+        item = data[str(item_id)]
+        item.update(vals)
+        self._apply_field_name(item)
         self.signatory_data = data
         self._set_action_log("edit_field")
 
@@ -216,11 +221,29 @@ class SignOcaRequest(models.Model):
             "value": False,
             "default_value": field_id.default_value,
             "placeholder": "",
+            "field_name": False,
         }
         signatory_data[item_id].update(item_vals)
+        self._apply_field_name(signatory_data[item_id])
         self.signatory_data = signatory_data
         self._set_action_log("add_field")
         return signatory_data[item_id]
+
+    def _apply_field_name(self, item):
+        """When an item is bound to a database field, its value comes from
+        the record linked to the request instead of from a signer, so we
+        (re)compute it here and make sure it is not attributed to any
+        signer role."""
+        self.ensure_one()
+        if item.get("field_name"):
+            item["role_id"] = False
+            item["required"] = False
+            item["value"] = self.env["sign.oca.field"]._get_field_display_value(
+                self.record_ref, item["field_name"]
+            )
+            item["field_name_applied"] = False
+        else:
+            item.pop("field_name_applied", None)
 
     def cancel(self):
         self.write({"state": "3_cancel"})
@@ -451,15 +474,24 @@ class SignOcaRequestSigner(models.Model):
             pages[page_number] = reader.pages[page_number - 1]
 
         for key in signatory_data:
-            if signatory_data[key]["role_id"] == self.role_id.id:
+            item = signatory_data[key]
+            if item["role_id"] == self.role_id.id:
                 signatory_data[key] = items[key]
                 self._check_signable(items[key])
                 item = items[key]
-                page = pages[item["page"]]
-                new_page = self._get_pdf_page(item, page.mediaBox)
-                if new_page:
-                    page.mergePage(new_page)
-                pages[item["page"]] = page
+            elif item.get("field_name") and not item.get("field_name_applied"):
+                # Database fields are not tied to any signer, so we burn
+                # them into the document as soon as anyone signs, instead
+                # of waiting for a signer that will never fill them.
+                item["field_name_applied"] = True
+                signatory_data[key] = item
+            else:
+                continue
+            page = pages[item["page"]]
+            new_page = self._get_pdf_page(item, page.mediaBox)
+            if new_page:
+                page.mergePage(new_page)
+            pages[item["page"]] = page
         for page_number in pages:
             output.addPage(pages[page_number])
         output_stream = BytesIO()

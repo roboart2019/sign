@@ -6,6 +6,16 @@
     &.sign_oca_selected {
         background-color: rgba(0, 128, 128, 0.5) !important;
     }
+    &.o_sign_oca_field_auto {
+        background-color: rgba(113, 99, 158, 0.3);
+        border: 1px dashed rgba(113, 99, 158, 0.8);
+        .fa-database {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            font-size: 0.8em;
+        }
+    }
     .o_placeholder {
         -webkit-user-select: none;
         -moz-user-select: none;

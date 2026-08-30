@@ -114,7 +114,13 @@ export default class SignOcaConfigure extends SignOcaPdfCommon {
                     title: _t("Edit field"),
                     item,
                     info: this.info,
-                    confirm: async (field_id, role_id, required, placeholder) => {
+                    confirm: async (
+                        field_id,
+                        role_id,
+                        required,
+                        placeholder,
+                        field_name
+                    ) => {
                         await this.orm.call(this.model, "set_item_data", [
                             [this.res_id],
                             item.id,
@@ -123,6 +129,7 @@ export default class SignOcaConfigure extends SignOcaPdfCommon {
                                 role_id,
                                 required,
                                 placeholder,
+                                field_name,
                             },
                         ]);
                         item.field_id = field_id;
@@ -132,6 +139,7 @@ export default class SignOcaConfigure extends SignOcaPdfCommon {
                         item.role_id = role_id;
                         item.required = required;
                         item.placeholder = placeholder;
+                        item.field_name = field_name;
                         target.remove();
                         this.postIframeField(item);
                     },
