@@ -20,7 +20,7 @@
                     <select name="field_name">
                         <option value="">-- No pre-fill --</option>
                         <t
-                            t-foreach="props.info.record_fields"
+                            t-foreach="props.info.record_fields.direct"
                             t-as="record_field"
                             t-key="record_field.name"
                         >
@@ -29,6 +29,25 @@
                                 t-out="record_field.string"
                                 t-att-selected="props.item.field_name === record_field.name ? 'selected': None"
                             />
+                        </t>
+                        <t
+                            t-foreach="props.info.record_fields.groups"
+                            t-as="group"
+                            t-key="group.label"
+                        >
+                            <optgroup t-att-label="group.label">
+                                <t
+                                    t-foreach="group.fields"
+                                    t-as="record_field"
+                                    t-key="record_field.name"
+                                >
+                                    <option
+                                        t-att-value="record_field.name"
+                                        t-out="record_field.string"
+                                        t-att-selected="props.item.field_name === record_field.name ? 'selected': None"
+                                    />
+                                </t>
+                            </optgroup>
                         </t>
                     </select>
                     <div class="text-muted small">
