@@ -16,6 +16,13 @@ const textSignOca = {
                 role_id: parent.info.role_id,
             })
         )[0];
+        // OWL special-cases "value" on an <input> as a DOM property rather
+        // than an HTML attribute, and renderToString() serializes the
+        // element back to a string - which drops properties and keeps only
+        // attributes. So t-att-value never survives into the element we
+        // build here, and the field always came out empty however correct
+        // item.value was. Set it explicitly on the element instead.
+        input.value = item.value || "";
         // The field starts readonly so the browser does not consider it
         // fillable on page load (Chrome, in particular, ignores
         // autocomplete="off" for fields it heuristically detects as

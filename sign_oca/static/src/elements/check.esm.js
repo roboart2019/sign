@@ -16,6 +16,11 @@ const checkSignOca = {
                 role_id: parent.info.role_id,
             })
         )[0];
+        // Same as for text fields: OWL sets "checked" on an <input> as a
+        // DOM property, which renderToString() drops when it serializes
+        // the element back to a string, so t-att-checked never made it
+        // onto the element. Apply it explicitly.
+        input.checked = Boolean(item.value);
         signatureItem[0].addEventListener("focus_signature", () => {
             input.focus();
         });
