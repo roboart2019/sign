@@ -13,6 +13,17 @@ class SignOcaTemplateGenerateMulti(models.TransientModel):
         default=lambda self: self.env.context.get("active_model")
         or self.env.context.get("model", False),
     )
+    # Snapshot the records the wizard was opened for right away, instead of
+    # reading "active_ids"/"active_id" from context again when "Generate"
+    # is pressed: that context is not guaranteed to still be sent along
+    # with a later button call, which otherwise silently produces zero
+    # records.
+    res_ids = fields.Char(
+        readonly=True,
+        default=lambda self: ",".join(
+            str(res_id) for res_id in self._get_default_res_ids()
+        ),
+    )
     template_id = fields.Many2one(
         comodel_name="sign.oca.template",
         # Templates not linked to any model can be used for any record,
@@ -22,15 +33,21 @@ class SignOcaTemplateGenerateMulti(models.TransientModel):
     )
     message = fields.Html()
 
-    def _prepare_sign_oca_request_vals(self):
-        vals = []
+    def _get_default_res_ids(self):
         # A form view only sets "active_id" (no "active_ids"); support both
         # so this wizard works from a list view (multiple records) and from
         # a single record's own form view.
-        active_ids = self.env.context.get("active_ids") or (
+        return self.env.context.get("active_ids") or (
             self.env.context.get("active_id") and [self.env.context["active_id"]]
-        )
-        for item in self.env[self.model].browse(active_ids):
+        ) or []
+
+    def _get_res_ids(self):
+        self.ensure_one()
+        return [int(res_id) for res_id in (self.res_ids or "").split(",") if res_id]
+
+    def _prepare_sign_oca_request_vals(self):
+        vals = []
+        for item in self.env[self.model].browse(self._get_res_ids()):
             vals.append(
                 self.template_id._prepare_sign_oca_request_vals_from_record(item)
             )
