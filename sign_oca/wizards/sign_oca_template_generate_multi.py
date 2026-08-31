@@ -9,18 +9,28 @@ class SignOcaTemplateGenerateMulti(models.TransientModel):
     _description = "Generate signature requests"
 
     model = fields.Char(
-        readonly=True, default=lambda self: self.env.context.get("model", False)
+        readonly=True,
+        default=lambda self: self.env.context.get("active_model")
+        or self.env.context.get("model", False),
     )
     template_id = fields.Many2one(
         comodel_name="sign.oca.template",
-        domain="[('model', '=', model)]",
+        # Templates not linked to any model can be used for any record,
+        # in addition to templates linked to this specific model.
+        domain="['|', ('model', '=', False), ('model', '=', model)]",
         required=True,
     )
     message = fields.Html()
 
     def _prepare_sign_oca_request_vals(self):
         vals = []
-        for item in self.env[self.model].browse(self.env.context.get("active_ids")):
+        # A form view only sets "active_id" (no "active_ids"); support both
+        # so this wizard works from a list view (multiple records) and from
+        # a single record's own form view.
+        active_ids = self.env.context.get("active_ids") or (
+            self.env.context.get("active_id") and [self.env.context["active_id"]]
+        )
+        for item in self.env[self.model].browse(active_ids):
             vals.append(
                 self.template_id._prepare_sign_oca_request_vals_from_record(item)
             )

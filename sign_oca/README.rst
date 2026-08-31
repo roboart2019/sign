@@ -102,18 +102,22 @@ Sign a pending document
 Sign from template
 ------------------
 
-- Go to any list view or form view (except sign.oca models), e.g.:
-  Contacts
-- Select multiple records (3 for example).
-- The "Sign from template" action will be available if there are any
-  sign templates created that are not linked to any model and/or any
-  linked to the corresponding model.
-- Select a template.
-- Click on the "Generate" button.
-- 3 requests will be created (each linked to each selected record) BUT
-  no signer will be set.
-- Some extra modules (e.g. maintenance_sign_oca) will automatically set
-  the signers for each request.
+- Go to **Contacts**, from either the list view (select one or more
+  records) or a single contact's own form view.
+- Open the Action (gear) menu and pick **"Sign from Template"**.
+- The wizard offers any sign template that is either not linked to any
+  model, or linked to ``res.partner`` specifically.
+- Select a template, click **"Generate"**.
+- One request per selected record is created, each linked to that
+  specific record (``record_ref``) — this is what makes "Pre-fill from
+  database" fields actually pull real data, and it's what a Model
+  linked template needs to be sent at all.
+- No signer is set automatically by this wizard on its own; some extra
+  modules (e.g. maintenance_sign_oca) will set the signers for each
+  request for their own model. For a plain Contact, add signers on the
+  generated request(s) yourself (Sign > Requests) before sending.
+- Other models don't have this action wired in out of the box yet —
+  only Contacts does, for now.
 
 Sign from portal
 ----------------

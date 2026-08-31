@@ -28,9 +28,16 @@
         id="sign_oca_template_generate_multi_act_window"
         model="ir.actions.act_window"
     >
-        <field name="name">Sign Oca Template Generate Multi</field>
+        <field name="name">Sign from Template</field>
         <field name="res_model">sign.oca.template.generate.multi</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <!-- Makes this reachable from the Action (gear) menu of Contacts,
+             from both the list view (with a selection) and a single
+             record's own form view, so a signature request can actually
+             be generated linked to a real record without needing another
+             module (e.g. maintenance_sign_oca) to wire this up. -->
+        <field name="binding_model_id" ref="base.model_res_partner" />
+        <field name="binding_view_types">list,form</field>
     </record>
 </odoo>
