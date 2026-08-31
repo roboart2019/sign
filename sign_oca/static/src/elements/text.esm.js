@@ -16,10 +16,25 @@ const textSignOca = {
                 role_id: parent.info.role_id,
             })
         )[0];
+        // The field starts readonly so the browser never considers it
+        // fillable on page load (Chrome, in particular, ignores
+        // autocomplete="off" for fields it heuristically detects as
+        // address-related, which these are: they sit right next to real
+        // "City:"/"State:" text in the PDF). Removing readonly only once
+        // the user actually engages (mouse, touch, or keyboard) keeps
+        // typing/editing working normally everywhere, desktop and mobile,
+        // while never giving the browser a window to autofill it first.
+        const unlock = () => {
+            input.removeAttribute("readonly");
+        };
+        input.addEventListener("mousedown", unlock);
+        input.addEventListener("touchstart", unlock);
         signatureItem[0].addEventListener("focus_signature", () => {
+            unlock();
             input.focus();
         });
         input.addEventListener("focus", (ev) => {
+            unlock();
             if (
                 item.default_value &&
                 !item.value &&

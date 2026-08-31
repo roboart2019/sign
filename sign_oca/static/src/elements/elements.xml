@@ -19,6 +19,7 @@
             autocorrect="off"
             autocapitalize="off"
             spellcheck="false"
+            readonly="readonly"
             t-att-name="'o_sign_oca_field_' + item.id"
             t-att-tabindex="-1"
             t-att-value="item.value? item.value: undefined"
