@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record
+        id="sign_oca_template_generate_multi_sale_act_window"
+        model="ir.actions.act_window"
+    >
+        <field name="name">Sign from Template</field>
+        <field name="res_model">sign.oca.template.generate.multi</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <!-- Makes "Sign from Template" reachable from the Action (gear)
+             menu of Sales Orders, the same way sign_oca itself wires it
+             up for Contacts: from the list view (with a selection) and
+             from a single order's own form view. -->
+        <field name="binding_model_id" ref="sale.model_sale_order" />
+        <field name="binding_view_types">list,form</field>
+    </record>
+</odoo>
