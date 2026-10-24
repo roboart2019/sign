@@ -13,6 +13,7 @@ from io import BytesIO
 from reportlab.graphics.shapes import Drawing, Line, Rect
 from reportlab.lib.colors import HexColor, black, transparent
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Image, Paragraph
 
@@ -515,11 +516,29 @@ class SignOcaRequestSigner(models.Model):
             new_page = self._get_pdf_page(item, page.mediaBox)
             if new_page:
                 page.mergePage(new_page)
-            if item.get("field_type") == "signature" and item.get("value"):
-                stamp = self._get_pdf_page_signature_stamp(item, page.mediaBox)
-                if stamp:
-                    page.mergePage(stamp)
             pages[item["page"]] = page
+        # Under this signer's lowest box on each page they signed on (usually
+        # the date), print when and from which IP address they signed.
+        signed_pages = {
+            item["page"]
+            for item in signatory_data.values()
+            if item["role_id"] == self.role_id.id
+            and item.get("field_type") == "signature"
+            and item.get("value")
+        }
+        for page_number in signed_pages:
+            anchor = max(
+                (
+                    item
+                    for item in signatory_data.values()
+                    if item["role_id"] == self.role_id.id
+                    and item["page"] == page_number
+                ),
+                key=lambda item: item["position_y"] + item["height"],
+            )
+            page = pages[page_number]
+            page.mergePage(self._get_pdf_page_signature_stamp(anchor, page.mediaBox))
+            pages[page_number] = page
         for page_number in pages:
             output.addPage(pages[page_number])
         output_stream = BytesIO()
@@ -651,25 +670,38 @@ class SignOcaRequestSigner(models.Model):
     def _get_pdf_page(self, item, box):
         return getattr(self, f"_get_pdf_page_{item['field_type']}")(item, box)
 
-    def _get_signature_stamp_text(self):
+    def _get_signature_stamp_lines(self):
         request = self.request_id
-        return self.env._(
-            "Signed %(date)s · IP %(ip)s",
-            date=request._format_signed_datetime(self.signed_on),
-            ip=self.signed_ip or "unknown",
-        )
+        return [
+            self.env._(
+                "Signed %(date)s", date=request._format_signed_datetime(self.signed_on)
+            ),
+            self.env._("IP %(ip)s", ip=self.signed_ip or "unknown"),
+        ]
 
     def _get_pdf_page_signature_stamp(self, item, box):
-        """Small gray line right under a signature: when and from which IP
-        address it was signed."""
+        """Two small gray lines right under ``item`` (the signer's lowest box,
+        usually the date): when and from which IP address they signed. The
+        text is right-aligned to the box and only shrinks if it would not fit
+        on the page."""
         packet = BytesIO()
         width, height = float(box.getWidth()), float(box.getHeight())
         can = canvas.Canvas(packet, pagesize=(width, height))
-        can.setFont("Helvetica", 6)
+        lines = self._get_signature_stamp_lines()
+        # Right-aligned to the box's right edge, growing to the left (into the
+        # label area), so long IPv6 addresses never run off the page.
+        right = (item["position_x"] + item["width"]) / 100 * width
+        available = right - 36
+        font_size = 5.5
+        widest = max(pdfmetrics.stringWidth(line, "Helvetica", font_size) for line in lines)
+        if widest > available:
+            font_size = max(3.5, font_size * available / widest)
+        can.setFont("Helvetica", font_size)
         can.setFillColor(HexColor("#5b6b80"))
-        x = item["position_x"] / 100 * width
-        y = (100 - item["position_y"] - item["height"]) / 100 * height - 7
-        can.drawString(x, max(y, 2), self._get_signature_stamp_text())
+        y = (100 - item["position_y"] - item["height"]) / 100 * height
+        for line in lines:
+            y -= font_size + 1.5
+            can.drawRightString(right, max(y, 2), line)
         can.save()
         packet.seek(0)
         return PdfReader(packet).pages[0]

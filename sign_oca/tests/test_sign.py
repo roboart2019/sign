@@ -205,7 +205,7 @@ class TestSign(SignOcaCommon, BaseCommon):
         # The signer's IP is recorded (0.0.0.0 outside a web request) and goes
         # into the line printed under the signature.
         self.assertEqual(signer.signed_ip, "0.0.0.0")
-        self.assertIn("IP 0.0.0.0", signer._get_signature_stamp_text())
+        self.assertIn("IP 0.0.0.0", signer._get_signature_stamp_lines())
 
     def test_auto_sign_template_cancel(self):
         self.configure_template()
