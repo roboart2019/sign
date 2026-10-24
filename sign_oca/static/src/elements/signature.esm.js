@@ -34,7 +34,10 @@ const signatureSignOca = {
             signatureItem[0].addEventListener("focus_signature", () => {
                 var signatureOptions = {
                     nameAndSignatureProps: {fontColor: "DarkBlue"},
-                    defaultName: parent.info.partner.name,
+                    // Start empty: the person signing types their own name (the
+                    // signer is often a company contact, whose name would
+                    // otherwise become the "signature").
+                    defaultName: "",
                 };
                 parent.dialogService.add(SignatureDialog, {
                     ...signatureOptions,
@@ -47,7 +50,10 @@ const signatureSignOca = {
                 ev.stopPropagation();
                 var signatureOptions = {
                     nameAndSignatureProps: {fontColor: "DarkBlue"},
-                    defaultName: parent.info.partner.name,
+                    // Start empty: the person signing types their own name (the
+                    // signer is often a company contact, whose name would
+                    // otherwise become the "signature").
+                    defaultName: "",
                 };
                 parent.dialogService.add(SignatureDialog, {
                     ...signatureOptions,
