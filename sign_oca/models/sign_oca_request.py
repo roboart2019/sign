@@ -501,6 +501,9 @@ class SignOcaRequestSigner(models.Model):
         for key in signatory_data:
             item = signatory_data[key]
             if item["role_id"] == self.role_id.id:
+                if item.get("field_type") == "audit":
+                    # Filled here, never from what the browser sent.
+                    items[key] = dict(item, value=self._get_signature_stamp_text())
                 signatory_data[key] = items[key]
                 self._check_signable(items[key])
                 item = items[key]
@@ -526,13 +529,20 @@ class SignOcaRequestSigner(models.Model):
             and item.get("field_type") == "signature"
             and item.get("value")
         }
-        for page_number in signed_pages:
+        # Pages with a "Signing Details" box already got it printed there.
+        audit_pages = {
+            item["page"]
+            for item in signatory_data.values()
+            if item["role_id"] == self.role_id.id and item.get("field_type") == "audit"
+        }
+        for page_number in signed_pages - audit_pages:
             anchor = max(
                 (
                     item
                     for item in signatory_data.values()
                     if item["role_id"] == self.role_id.id
                     and item["page"] == page_number
+                    and item.get("field_type") != "audit"
                 ),
                 key=lambda item: item["position_y"] + item["height"],
             )
@@ -670,6 +680,33 @@ class SignOcaRequestSigner(models.Model):
     def _get_pdf_page(self, item, box):
         return getattr(self, f"_get_pdf_page_{item['field_type']}")(item, box)
 
+    def _get_signature_stamp_text(self):
+        return "  ·  ".join(self._get_signature_stamp_lines())
+
+    def _get_pdf_page_audit(self, item, box):
+        """A 'Signing Details' box placed on the template: one line with the
+        signed date/time and IP, left-aligned, shrunk to fit the box."""
+        text = item.get("value") or ""
+        if not text:
+            return False
+        packet = BytesIO()
+        width, height = float(box.getWidth()), float(box.getHeight())
+        can = canvas.Canvas(packet, pagesize=(width, height))
+        box_width = item["width"] / 100 * width
+        font_size = 6.5
+        text_width = pdfmetrics.stringWidth(text, "Helvetica", font_size)
+        if text_width > box_width:
+            font_size = max(3.5, font_size * box_width / text_width)
+        can.setFont("Helvetica", font_size)
+        can.setFillColor(HexColor("#5b6b80"))
+        box_top = (100 - item["position_y"]) / 100 * height
+        box_height = item["height"] / 100 * height
+        y = box_top - (box_height + font_size) / 2 + 1
+        can.drawString(item["position_x"] / 100 * width, y, text)
+        can.save()
+        packet.seek(0)
+        return PdfReader(packet).pages[0]
+
     def _get_signature_stamp_lines(self):
         request = self.request_id
         return [
@@ -682,16 +719,18 @@ class SignOcaRequestSigner(models.Model):
     def _get_pdf_page_signature_stamp(self, item, box):
         """Two small gray lines right under ``item`` (the signer's lowest box,
         usually the date): when and from which IP address they signed. The
-        text is right-aligned to the box and only shrinks if it would not fit
-        on the page."""
+        text starts to the left of the box and only shrinks if it would not
+        fit on the page."""
         packet = BytesIO()
         width, height = float(box.getWidth()), float(box.getHeight())
         can = canvas.Canvas(packet, pagesize=(width, height))
-        lines = self._get_signature_stamp_lines()
-        # Right-aligned to the box's right edge, growing to the left (into the
-        # label area), so long IPv6 addresses never run off the page.
-        right = (item["position_x"] + item["width"]) / 100 * width
-        available = right - 36
+        lines = [self._get_signature_stamp_text()]
+        # One line, left-aligned, starting a quarter of the page to the left of the box
+        # (under the labels / where the text column begins), but never past
+        # a half-inch margin.
+        margin = 36
+        x = max(margin, (item["position_x"] / 100 - 0.25) * width)
+        available = width - margin - x
         font_size = 5.5
         widest = max(pdfmetrics.stringWidth(line, "Helvetica", font_size) for line in lines)
         if widest > available:
@@ -701,7 +740,7 @@ class SignOcaRequestSigner(models.Model):
         y = (100 - item["position_y"] - item["height"]) / 100 * height
         for line in lines:
             y -= font_size + 1.5
-            can.drawRightString(right, max(y, 2), line)
+            can.drawString(x, max(y, 2), line)
         can.save()
         packet.seek(0)
         return PdfReader(packet).pages[0]

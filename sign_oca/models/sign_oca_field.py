@@ -19,7 +19,12 @@ class SignOcaField(models.Model):
 
     name = fields.Char(required=True)
     field_type = fields.Selection(
-        [("text", "Text"), ("signature", "Signature"), ("check", "Check")],
+        [
+            ("text", "Text"),
+            ("signature", "Signature"),
+            ("check", "Check"),
+            ("audit", "Signing Details (date & IP)"),
+        ],
         required=True,
         default="text",
     )

@@ -126,6 +126,11 @@ export default class SignOcaPdfCommon extends Component {
     checkSignItemsCompletion() {
         const signItemsToComplete = [];
         $.each(this.info.items, (key, value) => {
+            // "Signing Details" boxes are filled by the server: never a
+            // stop for the "next field" arrow.
+            if (value.field_type === "audit") {
+                return;
+            }
             if (this.postIframeField(value) && this.postIframeField(value)[0]) {
                 const $element = $(value);
                 const signItemToComplete = {};
