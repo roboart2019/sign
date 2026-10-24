@@ -4,12 +4,14 @@
 import hashlib
 import json
 import logging
+
+import pytz
 from base64 import b64decode, b64encode
 from hashlib import sha256
 from io import BytesIO
 
 from reportlab.graphics.shapes import Drawing, Line, Rect
-from reportlab.lib.colors import black, transparent
+from reportlab.lib.colors import HexColor, black, transparent
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Image, Paragraph
@@ -333,6 +335,15 @@ class SignOcaRequest(models.Model):
         if all(self.mapped("signer_ids.signed_on")):
             self.state = "2_signed"
 
+    def _signed_datetime_tz(self):
+        return pytz.timezone(self.create_uid.tz or self.env.user.tz or "UTC")
+
+    def _format_signed_datetime(self, value):
+        if not value:
+            return ""
+        local = pytz.utc.localize(value).astimezone(self._signed_datetime_tz())
+        return local.strftime("%m/%d/%Y %I:%M:%S %p %Z")
+
     def _set_action_log_vals(self, action, **kwargs):
         vals = kwargs.copy()
         vals.update(
@@ -393,6 +404,13 @@ class SignOcaRequestSigner(models.Model):
     altered_hash = fields.Boolean(compute="_compute_altered_hash")
     latitude = fields.Float()
     longitude = fields.Float()
+    signed_ip = fields.Char(
+        string="Signed from IP",
+        readonly=True,
+        copy=False,
+        help="IP address the signer signed from (printed on the signature "
+        "certificate page).",
+    )
 
     @api.depends("request_id.record_ref")
     def _compute_model(self):
@@ -468,6 +486,7 @@ class SignOcaRequestSigner(models.Model):
         if self.request_id.state != "0_sent":
             raise ValidationError(self.env._("Request cannot be signed"))
         self.signed_on = fields.Datetime.now()
+        self.signed_ip = self.request_id._get_action_log_ip()
         # current_hash = self.request_id.current_hash
         signatory_data = self.request_id.signatory_data or {}
 
@@ -496,6 +515,10 @@ class SignOcaRequestSigner(models.Model):
             new_page = self._get_pdf_page(item, page.mediaBox)
             if new_page:
                 page.mergePage(new_page)
+            if item.get("field_type") == "signature" and item.get("value"):
+                stamp = self._get_pdf_page_signature_stamp(item, page.mediaBox)
+                if stamp:
+                    page.mergePage(stamp)
             pages[item["page"]] = page
         for page_number in pages:
             output.addPage(pages[page_number])
@@ -627,6 +650,29 @@ class SignOcaRequestSigner(models.Model):
 
     def _get_pdf_page(self, item, box):
         return getattr(self, f"_get_pdf_page_{item['field_type']}")(item, box)
+
+    def _get_signature_stamp_text(self):
+        request = self.request_id
+        return self.env._(
+            "Signed %(date)s · IP %(ip)s",
+            date=request._format_signed_datetime(self.signed_on),
+            ip=self.signed_ip or "unknown",
+        )
+
+    def _get_pdf_page_signature_stamp(self, item, box):
+        """Small gray line right under a signature: when and from which IP
+        address it was signed."""
+        packet = BytesIO()
+        width, height = float(box.getWidth()), float(box.getHeight())
+        can = canvas.Canvas(packet, pagesize=(width, height))
+        can.setFont("Helvetica", 6)
+        can.setFillColor(HexColor("#5b6b80"))
+        x = item["position_x"] / 100 * width
+        y = (100 - item["position_y"] - item["height"]) / 100 * height - 7
+        can.drawString(x, max(y, 2), self._get_signature_stamp_text())
+        can.save()
+        packet.seek(0)
+        return PdfReader(packet).pages[0]
 
     def _set_action_log(self, action, **kwargs):
         self.ensure_one()

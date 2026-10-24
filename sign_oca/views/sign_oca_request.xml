@@ -117,6 +117,7 @@
                             <field name="role_id" />
                             <field name="partner_id" />
                             <field name="signed_on" readonly="1" />
+                            <field name="signed_ip" readonly="1" optional="show" />
                         </list>
                     </field>
                 </sheet>
