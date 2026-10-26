@@ -35,7 +35,10 @@
                 t-ref="sign_oca_footer"
                 style="display:none;"
             >
-                <div class="o_sign_validation_buttons justify-content-center">
+                <div
+                    class="o_sign_validation_buttons justify-content-center align-items-center flex-wrap"
+                >
+                    <span id="sign_oca_status" class="o_sign_oca_status" />
                     <button
                         class="btn btn-primary"
                         id="sign_oca_button"

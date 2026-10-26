@@ -119,14 +119,26 @@ export default class SignOcaPdf extends SignOcaPdfCommon {
         }
     }
     checkFilledAll() {
-        this.to_sign_update =
-            Object.values(this.info.items).filter((item) => {
-                return (
-                    item.required &&
-                    item.role_id === this.info.role_id &&
-                    !SignRegistry.get(item.field_type).check(item)
+        const required = Object.values(this.info.items).filter(
+            (item) => item.required && item.role_id === this.info.role_id
+        );
+        const missing = required.filter(
+            (item) => !SignRegistry.get(item.field_type).check(item)
+        );
+        // Mark each required box as done or not, so the signer can see
+        // which ones are still left.
+        for (const item of required) {
+            const element = this.items && this.items[item.id];
+            if (element) {
+                element.classList.toggle(
+                    "sign_oca_field_filled",
+                    !missing.includes(item)
                 );
-            }).length === 0;
+            }
+        }
+        this.required_count = required.length;
+        this.missing_count = missing.length;
+        this.to_sign_update = missing.length === 0;
         this.checkToSign();
     }
 }

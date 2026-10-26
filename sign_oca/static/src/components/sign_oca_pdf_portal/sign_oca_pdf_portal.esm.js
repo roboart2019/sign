@@ -28,13 +28,20 @@ export class SignOcaPdfPortal extends SignOcaPdf {
     }
     checkToSign() {
         this.to_sign = this.to_sign_update;
-        if (this.to_sign_update) {
-            $(this.signOcaFooter.el).show();
-            $("#sign_oca_button").removeAttr("disabled");
-        } else {
-            $(this.signOcaFooter.el).hide();
-            $("#sign_oca_button").prop("disabled", true);
-        }
+        // Always show the footer, so the signer knows what is left to do
+        // instead of wondering where the button is.
+        $(this.signOcaFooter.el).show();
+        const done = (this.required_count || 0) - (this.missing_count || 0);
+        const status = this.to_sign_update
+            ? _t("All done. Tap the button to sign.")
+            : _t("Fill in all highlighted boxes to sign: %(done)s of %(total)s done", {
+                  done,
+                  total: this.required_count,
+              });
+        $("#sign_oca_status")
+            .text(status)
+            .toggleClass("o_sign_oca_status_ready", Boolean(this.to_sign_update));
+        $("#sign_oca_button").prop("disabled", !this.to_sign_update);
     }
     postIframeFields() {
         super.postIframeFields(...arguments);

@@ -2,6 +2,11 @@
     background-color: rgba(0, 128, 128, 0.3);
     &.sign_oca_field_required {
         background-color: rgba(255, 113, 113, 0.5);
+        outline: 2px solid rgba(214, 40, 40, 0.8);
+        &.sign_oca_field_filled {
+            background-color: rgba(76, 175, 80, 0.25);
+            outline-color: rgba(46, 125, 50, 0.8);
+        }
     }
     &.sign_oca_selected {
         background-color: rgba(0, 128, 128, 0.5) !important;
@@ -25,6 +30,13 @@
     input {
         border: transparent;
         background-color: transparent;
+    }
+    // Browsers give checkboxes a default margin, which on a small box
+    // pushes the box out from over the printed square.
+    input[type="checkbox"] {
+        display: block;
+        margin: 0;
+        cursor: pointer;
     }
 }
 .o_sign_oca_field_config {
